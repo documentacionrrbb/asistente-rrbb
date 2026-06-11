@@ -1,0 +1,6 @@
+{
+  "name": "Asistente de Gestión de Bienes",
+  "description": "Asistente de pasos dinámico con simulación Kotlin/Jetpack Compose para la recuperación y gestión de bienes, integrado con OCR inteligente y almacenamiento en Google Drive pública.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
