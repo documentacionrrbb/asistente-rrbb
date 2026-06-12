@@ -1,0 +1,44 @@
+name: Compilar App Web a APK
+on:
+  push:
+    branches:
+      - main
+      - principal
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Construir sitio web estatico
+        run: npm run build
+
+      - name: Configurar herramienta de empaquetado
+        run: npm install -g @capacitor/cli @capacitor/core @capacitor/android
+
+      - name: Crear carpeta de Android
+        run: |
+          npx cap init "Asistente de Bienes" "com.documentacionrrbb.asistentebienes" --web-dir=dist
+          npx cap add android
+          npx cap sync android
+
+      - name: Armar archivo APK instalable
+        run: |
+          cd android
+          ./gradlew assembleDebug
+
+      - name: Guardar mi archivo APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-asistente-bienes
+          path: android/app/build/outputs/apk/debug/app-debug.apk
