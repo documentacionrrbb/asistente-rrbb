@@ -32,10 +32,11 @@ jobs:
       - name: Instalar Cordova de forma global
         run: npm install -g cordova
 
-      - name: Crear proyecto Android desde cero
+      - name: Crear proyecto Android y configurar XML
         run: |
           cordova create app-android com.documentacionrrbb.asistentebienes "Asistente de Bienes"
           cd app-android
+          echo '<?xml version="1.0" encoding="UTF-8"?><widget id="com.documentacionrrbb.asistentebienes" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"><name>Asistente de Bienes</name><description>App Asistente</description><author email="vmanuelvo@gmail.com">Victor Villena</author><content src="index.html" /><access origin="*" /><allow-intent href="http://*/*" /><allow-intent href="https://*/*" /></widget>' > config.xml
           cordova platform add android
           rm -rf www/*
           cp -r ../dist/* www/
