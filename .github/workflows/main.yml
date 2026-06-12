@@ -1,4 +1,4 @@
-name: Compilar APK con Cordova
+name: Compilar APK Nativo
 on:
   push:
     branches:
@@ -9,41 +9,37 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Descargar codigo de GitHub
+      - name: Checkout fuente
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js en el servidor
+      - name: Instalar Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Instalar dependencias del proyecto
-        run: npm install
+      - name: Instalar dependencias
+        run: |
+          npm install
+          npm run build
 
-      - name: Compilar la pagina web (Vite)
-        run: npm run build
-
-      - name: Configurar Java y Android SDK
+      - name: Configurar Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
 
-      - name: Instalar Cordova de forma global
-        run: npm install -g cordova
-
-      - name: Crear proyecto Android y configurar XML
+      - name: Preparar Cordova y compilar Android
         run: |
-          cordova create app-android com.documentacionrrbb.asistentebienes "Asistente de Bienes"
-          cd app-android
-          echo '<?xml version="1.0" encoding="UTF-8"?><widget id="com.documentacionrrbb.asistentebienes" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"><name>Asistente de Bienes</name><description>App Asistente</description><author email="vmanuelvo@gmail.com">Victor Villena</author><content src="index.html" /><access origin="*" /><allow-intent href="http://*/*" /><allow-intent href="https://*/*" /></widget>' > config.xml
-          cordova platform add android
+          npm install -g cordova
+          cordova create native-app com.documentacionrrbb.asistentebienes "Asistente de Bienes"
+          cd native-app
+          cordova platform add android --no-telemetry
           rm -rf www/*
           cp -r ../dist/* www/
-          cordova build android --debug
+          cordova build android --debug --device
 
-      - name: Guardar mi archivo APK listo
+      - name: Subir APK generado
         uses: actions/upload-artifact@v4
         with:
-          name: app-asistente-bienes-instalable
-          path: app-android/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          name: app-instalable-apk
+          path: native-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
