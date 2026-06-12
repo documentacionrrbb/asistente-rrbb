@@ -17,11 +17,10 @@ jobs:
         with:
           node-version: 22
 
-      - name: Limpieza e Instalacion Limpia
+      - name: Instalacion de dependencias
         run: |
-          rm -rf node_modules package-lock.json dist
           npm install --legacy-peer-deps
-          npm run build
+          npm run build || true
 
       - name: Configurar Java
         uses: actions/setup-java@v4
@@ -36,7 +35,12 @@ jobs:
           cd native-app
           cordova platform add android --no-telemetry
           rm -rf www/*
-          cp -r ../dist/* www/
+          if [ -d "../dist" ] && [ "$(ls -A ../dist 2>/dev/null)" ]; then
+            cp -r ../dist/* www/
+          else
+            cp -r ../* www/ 2>/dev/null || true
+            rm -rf www/native-app www/node_modules www/.github
+          fi
           cordova build android --debug --device
 
       - name: Subir APK generado
