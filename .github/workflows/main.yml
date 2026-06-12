@@ -12,12 +12,12 @@ jobs:
       - name: Checkout fuente
         uses: actions/checkout@v4
 
-      - name: Instalar Node
+      - name: Instalar Node de Alta Potencia
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
 
-      - name: Instalar dependencias
+      - name: Instalar dependencias y compilar Vite
         run: |
           npm install
           npm run build
