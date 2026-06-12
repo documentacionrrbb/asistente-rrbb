@@ -1,4 +1,4 @@
-name: Compilar App Web a APK
+name: Compilar APK con Cordova
 on:
   push:
     branches:
@@ -9,36 +9,40 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Descargar codigo
+      - name: Descargar codigo de GitHub
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
+      - name: Configurar Node.js en el servidor
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Instalar dependencias
+      - name: Instalar dependencias del proyecto
         run: npm install
 
-      - name: Construir sitio web estatico
+      - name: Compilar la pagina web (Vite)
         run: npm run build
 
-      - name: Configurar herramienta de empaquetado
-        run: npm install -g @capacitor/cli @capacitor/core @capacitor/android
+      - name: Configurar Java y Android SDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Crear carpeta de Android
+      - name: Instalar Cordova de forma global
+        run: npm install -g cordova
+
+      - name: Crear proyecto Android desde cero
         run: |
-          npx cap init "Asistente de Bienes" "com.documentacionrrbb.asistentebienes" --web-dir=dist
-          npx cap add android
-          npx cap sync android
+          cordova create app-android com.documentacionrrbb.asistentebienes "Asistente de Bienes"
+          cd app-android
+          cordova platform add android
+          rm -rf www/*
+          cp -r ../dist/* www/
+          cordova build android --debug
 
-      - name: Armar archivo APK instalable
-        run: |
-          cd android
-          ./gradlew assembleDebug
-
-      - name: Guardar mi archivo APK
+      - name: Guardar mi archivo APK listo
         uses: actions/upload-artifact@v4
         with:
-          name: app-asistente-bienes
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: app-asistente-bienes-instalable
+          path: app-android/platforms/android/app/build/outputs/apk/debug/app-debug.apk
